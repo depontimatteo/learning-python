@@ -1,5 +1,6 @@
 import argparse
-from datetime import date, timedelta
+#from datetime import date, timedelta
+import datetime
 from random import randint
 import os
 import urllib.request
@@ -59,7 +60,43 @@ def create_date(datelist, surprise):
     """
     
     #TODO: Your code goes here
-    pass
+    
+    if(len(datelist) == 0):
+        if(surprise):
+            #create a random date object between June 16 1995 and today
+            today = datetime.date.today()
+            year = random.randint(1995, today.year)
+            if(year == 1995):
+                month = random.randint(6, 12)
+            elif(year == today.year):
+                month = random.randint(1, today.month)
+            else:
+                month = random.randint(1, 12)
+                
+            if(year == today.year) and (month == today.month):
+                day = random.randint(1, today.day)
+            else:
+                day = random.randint(1, 28)
+            
+            try:
+                datetime.datetime.strptime(str(year) + "-" + str(month) + "-" + str(day), '%Y-%m-%d')
+                data = datetime.date(year=year, month=month, day=day)
+                return data
+            except ValueError:
+                return None            
+        else:
+            #create a date object using yesterday's date
+            yesterday = datetime.date.today() - timedelta(1)
+            return yesterday
+    else:
+        try:
+            (month, day, year) = datelist
+            datetime.datetime.strptime(str(year) + "-" + str(month) + "-" + str(day), '%Y-%m-%d')
+            data = datetime.date(year=year, month=month, day=day)
+            return data
+        except ValueError:
+            return None    
+
 
     
 def query_url(d, api_key):
@@ -91,7 +128,9 @@ def query_url(d, api_key):
     """
         
     #TODO: Your code goes here
-    pass
+    
+    return "https://api.nasa.gov/planetary/apod?api_key=" + api_key + "&date=" + d.strftime("%Y-%m-%d")
+    
 
 
 def save_image(d, image):
@@ -117,8 +156,21 @@ def save_image(d, image):
     """
     
     #TODO: Your code goes here
-    pass
+    
+    if(not os.path.isdir(str(d.year))):
+        os.mkdir(str(d.year))
+    
+    if(not os.path.isdir(str(d.year) + "/" + str(d.month))):
+        os.mkdir(str(d.year) + "/" + str(d.month))
+    
+    if(os.path.isdir(str(d.year))):  
+        if(os.path.isdir(str(d.month))):
+            filestream = open(str(d.year) + "/" + str(d.month) + "/" + d.strftime("%Y-%m-%d") + ".jpg","wb")
+            filestream.write(image)
+            filestream.close()
 
+    
+    return str(d.year) + "/" + str(d.month) + "/" + d.strftime("%Y-%m-%d") + ".jpg"
     
     
 def request(url):
